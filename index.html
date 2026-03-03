@@ -33,11 +33,8 @@
         .subtitle { font-size: 1.1em; color: #7f8fa6; margin-bottom: 20px; font-style: italic;}
 
         /* Khung cuộn ảnh */
-        .gallery-wrapper {
-            position: relative; width: 100%; margin-bottom: 10px;
-        }
         .gallery-container {
-            width: 100%; overflow-x: auto; padding-bottom: 15px; 
+            width: 100%; overflow-x: auto; padding-bottom: 15px; margin-bottom: 10px;
             scrollbar-width: none; touch-action: pan-x; cursor: grab;
             -webkit-overflow-scrolling: touch; 
         }
@@ -50,14 +47,17 @@
             object-fit: cover; flex-shrink: 0; pointer-events: none; 
         }
 
-        /* Nút quay lại từ đầu (Ẩn lúc đầu) */
-        #rewind-btn {
-            display: none; position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(255, 71, 87, 0.95); color: white; border: none; padding: 12px 25px;
-            border-radius: 30px; font-family: 'Nunito', sans-serif; font-weight: bold; font-size: 1em;
-            cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.25); z-index: 20;
-            animation: pop 0.4s ease-out;
+        /* Thẻ chứa nút Quay Lại (Nằm ở cuối danh sách ảnh) */
+        .end-card {
+            display: flex; justify-content: center; align-items: center;
+            width: 150px; height: 250px; flex-shrink: 0;
         }
+        #rewind-btn {
+            background: rgba(255, 71, 87, 0.1); color: #ff4757; border: 2px solid #ff4757; 
+            padding: 15px 20px; border-radius: 30px; font-family: 'Nunito', sans-serif; 
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        #rewind-btn:active { background: #ff4757; color: white; }
 
         /* Khung thời gian */
         .glass-panel {
@@ -75,31 +75,25 @@
         }
         .btn-letter:active { background: #ff4757; color: white; }
 
-        /* Modal bức thư (FIX CẤU TRÚC) */
+        /* Modal bức thư */
         #letter-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
             display: none; justify-content: center; align-items: center; z-index: 200; opacity: 0; transition: 0.3s;
         }
-        .paper-wrapper {
-            position: relative; width: 85%; max-width: 400px; max-height: 70vh;
-        }
+        .paper-wrapper { position: relative; width: 85%; max-width: 400px; max-height: 70vh; }
         .paper {
             background: #fffdf5; width: 100%; height: 100%; max-height: 70vh; padding: 30px 25px; border-radius: 10px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow-y: auto; text-align: left;
             background-image: repeating-linear-gradient(transparent, transparent 29px, #ccc 29px, #ccc 30px); 
-            background-attachment: local; /* ĐÂY: DÒNG KẺ TRÔI THEO CHỮ */
+            background-attachment: local; 
             line-height: 30px; box-sizing: border-box;
         }
-        /* Nút X đứng im */
         .close-btn {
             position: absolute; top: -12px; right: -12px; font-size: 1.8em; font-weight: bold; color: #ff4757;
             background: white; width: 35px; height: 35px; border-radius: 50%; text-align: center; line-height: 30px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; z-index: 10;
         }
-        #letter-content {
-            font-family: 'Dancing Script', cursive; font-size: 1.5em; color: #2c3e50; margin-top: 5px;
-            white-space: pre-wrap; 
-        }
+        #letter-content { font-family: 'Dancing Script', cursive; font-size: 1.5em; color: #2c3e50; margin-top: 5px; white-space: pre-wrap; }
 
         /* Hiệu ứng rơi rơi */
         .confetti { position: fixed; top: -10px; z-index: 999; pointer-events: none; }
@@ -107,7 +101,6 @@
         
         @keyframes heartbeat { 0%, 30%, 100% { transform: scale(1); } 15%, 45% { transform: scale(1.1); } }
         @keyframes fall { to { transform: translateY(105vh) rotate(720deg); } }
-        @keyframes pop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -121,11 +114,8 @@
         <h1 id="custom-title">Tên Tiêu Đề</h1>
         <div class="subtitle" id="custom-subtitle">"Dòng phụ đề..."</div>
 
-        <div class="gallery-wrapper">
-            <div class="gallery-container" id="slider">
-                <div class="gallery" id="gallery-track"></div>
-            </div>
-            <button id="rewind-btn" onclick="rewindGallery()">🔄 Vuốt lại từ đầu</button>
+        <div class="gallery-container" id="slider">
+            <div class="gallery" id="gallery-track"></div>
         </div>
 
         <div class="glass-panel">
@@ -189,6 +179,7 @@ Chồng emm.`
         document.getElementById('custom-counter-title').innerText = CONFIG.loiDanDongHo;
         document.getElementById('letter-content').innerText = CONFIG.thuTay;
 
+        // Sinh ảnh
         const gallery = document.getElementById('gallery-track');
         CONFIG.danhSachAnh.forEach(anh => {
             const img = document.createElement('img');
@@ -196,69 +187,61 @@ Chồng emm.`
             gallery.appendChild(img);
         });
 
+        // NÉT ĐỘT PHÁ: Chèn cái thẻ chứa nút Quay Lại vào tận cùng đuôi danh sách ảnh
+        const endCard = document.createElement('div');
+        endCard.className = 'end-card';
+        endCard.innerHTML = `<button id="rewind-btn" onclick="rewindGallery()">🔄 Vuốt lại</button>`;
+        gallery.appendChild(endCard);
+
         // ==========================================
-        // ĐỘNG CƠ VUỐT ẢNH & KIỂM TRA ĐIỂM DỪNG
+        // ĐỘNG CƠ VUỐT ẢNH (DỪNG TRƯỚC NÚT QUAY LẠI)
         // ==========================================
         const slider = document.getElementById('slider');
-        const rewindBtn = document.getElementById('rewind-btn');
         let isDown = false, startX, scrollLeft;
         let animationID;
         let resumeTimeout; 
-        let isAtEnd = false; // Cờ kiểm tra chạm đáy
+        let isAtEnd = false; 
 
         function autoScroll() {
-            if (isAtEnd) return; // Nếu chạm đáy thì ngắt hoàn toàn động cơ
+            if (isAtEnd) return; 
 
             slider.scrollLeft += 1; 
             
-            // Nếu chạm điểm cuối cùng
-            if(slider.scrollLeft >= (slider.scrollWidth - slider.clientWidth - 2)) {
+            // Tính toán khoảng cách: Dừng auto-scroll ngay lúc hiển thị hết tấm ảnh cuối (giấu cái nút Quay lại đi)
+            const stopPoint = slider.scrollWidth - slider.clientWidth - 160; 
+            
+            if(slider.scrollLeft >= stopPoint) {
                 isAtEnd = true;
-                rewindBtn.style.display = 'block'; // Bật nút quay lại
                 cancelAnimationFrame(animationID);
                 return;
             }
             animationID = requestAnimationFrame(autoScroll);
         }
 
-        // Hàm ấn nút quay lại
         function rewindGallery() {
-            // Cuộn mượt mà về 0
             slider.scrollTo({ left: 0, behavior: 'smooth' });
-            rewindBtn.style.display = 'none';
             isAtEnd = false;
-            // Đợi cuộn xong (1s) rồi nổ máy chạy tiếp
-            setTimeout(() => {
-                animationID = requestAnimationFrame(autoScroll);
-            }, 1000);
+            setTimeout(() => { animationID = requestAnimationFrame(autoScroll); }, 1000);
         }
 
-        // Reset cờ End nếu user tự vuốt ngược lại
         function checkUserScroll() {
-            if (slider.scrollLeft < (slider.scrollWidth - slider.clientWidth - 10)) {
-                isAtEnd = false;
-                rewindBtn.style.display = 'none';
-            }
+            const stopPoint = slider.scrollWidth - slider.clientWidth - 160;
+            if (slider.scrollLeft < stopPoint - 10) { isAtEnd = false; }
         }
 
         // --- XỬ LÝ CHUỘT ---
         slider.addEventListener('mousedown', (e) => { 
-            isDown = true; 
-            cancelAnimationFrame(animationID); 
-            clearTimeout(resumeTimeout); 
-            startX = e.pageX - slider.offsetLeft; 
-            scrollLeft = slider.scrollLeft; 
+            isDown = true; cancelAnimationFrame(animationID); clearTimeout(resumeTimeout); 
+            startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; 
         });
         slider.addEventListener('mouseleave', () => { 
             if(isDown) { 
-                isDown = false; 
-                checkUserScroll();
+                isDown = false; checkUserScroll();
                 if(!isAtEnd) resumeTimeout = setTimeout(() => { animationID = requestAnimationFrame(autoScroll); }, 1500); 
             }
         });
         slider.addEventListener('mouseup', () => { 
-            isDown = false; 
-            checkUserScroll();
+            isDown = false; checkUserScroll();
             if(!isAtEnd) resumeTimeout = setTimeout(() => { animationID = requestAnimationFrame(autoScroll); }, 1500); 
         });
         slider.addEventListener('mousemove', (e) => {
@@ -272,21 +255,18 @@ Chồng emm.`
         
         // --- XỬ LÝ CẢM ỨNG ---
         slider.addEventListener('touchstart', () => { 
-            cancelAnimationFrame(animationID); 
-            clearTimeout(resumeTimeout); 
+            cancelAnimationFrame(animationID); clearTimeout(resumeTimeout); 
         }, { passive: true });
         
         slider.addEventListener('touchend', () => { 
             checkUserScroll();
             if(!isAtEnd) {
-                resumeTimeout = setTimeout(() => {
-                    animationID = requestAnimationFrame(autoScroll);
-                }, 1500);
+                resumeTimeout = setTimeout(() => { animationID = requestAnimationFrame(autoScroll); }, 1500);
             }
         });
 
         // ==========================================
-        // HÀM CHÍNH: MỞ QUÀ
+        // HÀM CHÍNH & TÍNH TOÁN
         // ==========================================
         function openGift() {
             document.getElementById('start-screen').style.opacity = '0';
@@ -300,67 +280,46 @@ Chồng emm.`
             
             celebrateNow();
             setInterval(createFallingItem, 400); 
-            setInterval(updateTimer, 1000); 
-            updateTimer();
+            setInterval(updateTimer, 1000); updateTimer();
             requestAnimationFrame(autoScroll);
         }
 
         function toggleLetter(show) {
             const modal = document.getElementById('letter-modal');
             if(show) {
-                modal.style.display = 'flex';
-                setTimeout(() => modal.style.opacity = '1', 10);
+                modal.style.display = 'flex'; setTimeout(() => modal.style.opacity = '1', 10);
             } else {
-                modal.style.opacity = '0';
-                setTimeout(() => modal.style.display = 'none', 300);
+                modal.style.opacity = '0'; setTimeout(() => modal.style.display = 'none', 300);
             }
         }
 
-        // ==========================================
-        // TÍNH TOÁN THỜI GIAN
-        // ==========================================
         function updateTimer() {
-            const startDate = new Date(CONFIG.ngayBatDau);
-            const now = new Date();
-            
+            const startDate = new Date(CONFIG.ngayBatDau); const now = new Date();
             let months = (now.getFullYear() - startDate.getFullYear()) * 12 + (now.getMonth() - startDate.getMonth());
             let days = now.getDate() - startDate.getDate();
             if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
-            
             const diffMS = now - startDate;
-            const h = Math.floor((diffMS % 86400000) / 3600000);
-            const m = Math.floor((diffMS % 3600000) / 60000);
-            const s = Math.floor((diffMS % 60000) / 1000);
-
+            const h = Math.floor((diffMS % 86400000) / 3600000), m = Math.floor((diffMS % 3600000) / 60000), s = Math.floor((diffMS % 60000) / 1000);
             document.getElementById('main-timer').innerHTML = `${months} Tháng, ${days} Ngày`;
             document.getElementById('sub-timer').innerHTML = `${h} Giờ : ${m} Phút : ${s} Giây`;
         }
 
         function celebrateNow() {
-            document.body.style.backgroundColor = "#ffccd5";
-            const colors = ['#ff4757', '#2ecc71', '#3498db', '#f1c40f', '#e84393'];
+            document.body.style.backgroundColor = "#ffccd5"; const colors = ['#ff4757', '#2ecc71', '#3498db', '#f1c40f', '#e84393'];
             for (let i = 0; i < 150; i++) {
-                const conf = document.createElement('div');
-                conf.className = 'confetti';
+                const conf = document.createElement('div'); conf.className = 'confetti';
                 conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.left = Math.random() * 100 + 'vw';
-                conf.style.width = Math.random() * 10 + 5 + 'px'; conf.style.height = Math.random() * 5 + 5 + 'px';
+                conf.style.left = Math.random() * 100 + 'vw'; conf.style.width = Math.random() * 10 + 5 + 'px'; conf.style.height = Math.random() * 5 + 5 + 'px';
                 conf.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
-                document.body.appendChild(conf);
-                setTimeout(() => conf.remove(), 5000);
+                document.body.appendChild(conf); setTimeout(() => conf.remove(), 5000);
             }
         }
 
         function createFallingItem() {
-            const item = document.createElement('div');
-            item.classList.add('falling-item');
-            const icons = ['🌸', '💖', '✨', '💕', '🥰'];
-            item.innerText = icons[Math.floor(Math.random() * icons.length)];
-            item.style.left = Math.random() * 100 + 'vw';
-            item.style.animationDuration = Math.random() * 3 + 4 + 's'; 
-            item.style.fontSize = Math.random() * 20 + 15 + 'px'; 
-            document.body.appendChild(item);
-            setTimeout(() => { item.remove(); }, 7000);
+            const item = document.createElement('div'); item.classList.add('falling-item');
+            const icons = ['🌸', '💖', '✨', '💕', '🥰']; item.innerText = icons[Math.floor(Math.random() * icons.length)];
+            item.style.left = Math.random() * 100 + 'vw'; item.style.animationDuration = Math.random() * 3 + 4 + 's'; item.style.fontSize = Math.random() * 20 + 15 + 'px'; 
+            document.body.appendChild(item); setTimeout(() => { item.remove(); }, 7000);
         }
     </script>
 </body>
