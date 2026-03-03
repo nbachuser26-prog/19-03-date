@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kỷ niệm 6 tháng ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fce4ec; /* Màu nền hồng nhạt ban đầu */
+            --text-main: #d81b60;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+        }
+        body {
+            background-color: var(--bg-color);
+            margin: 0; font-family: 'Nunito', sans-serif; color: var(--text-main);
+            overflow-x: hidden; /* Chống trượt ngang */
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+            transition: background-color 1s ease; /* Hiệu ứng đổi màu nền mượt */
+        }
+
+        /* Màn hình Chào */
+        #start-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff0f3; z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.6s;
+        }
+        .btn-start {
+            padding: 15px 40px; font-size: 1.5em; font-family: 'Dancing Script', cursive;
+            background: #ff4757; color: white; border: none; border-radius: 50px;
+            box-shadow: 0 8px 15px rgba(255, 71, 87, 0.3); cursor: pointer;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        /* Giao diện Chính */
+        #main-content {
+            display: none; opacity: 0; transition: opacity 1s ease-in;
+            width: 90%; max-width: 500px; text-align: center; margin-top: 30px; padding-bottom: 30px; z-index: 10;
+        }
+
+        h1.main-title { font-family: 'Dancing Script', cursive; font-size: 3.2em; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .subtitle { font-size: 1.1em; color: #7f8fa6; margin-bottom: 20px; font-style: italic;}
+
+        /* Slider Ảnh mượt mà */
+        .gallery-container {
+            width: 100%; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px;
+            scrollbar-width: none; /* Ẩn thanh cuộn Firefox */
+        }
+        .gallery-container::-webkit-scrollbar { display: none; /* Ẩn thanh cuộn Chrome/Safari */ }
+        
+        .gallery {
+            display: flex; gap: 15px; snap-type: x mandatory;
+        }
+        .gallery img {
+            scroll-snap-align: center; flex-shrink: 0;
+            width: 85%; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            object-fit: cover; aspect-ratio: 3/4; /* Tỷ lệ ảnh dọc đẹp trên đt */
+        }
+
+        /* Khung kính thông tin */
+        .glass-panel {
+            background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.8); border-radius: 25px; padding: 25px 20px;
+            box-shadow: 0 10px 30px rgba(216, 27, 96, 0.15); margin-bottom: 20px;
+        }
+
+        .counter-title { font-size: 1.1em; font-weight: bold; color: #2f3542; margin-bottom: 10px; }
+        .time-count { font-size: 1.6em; font-weight: 800; color: #ff4757; }
+        .time-details { font-size: 0.85em; color: #576574; margin-top: 5px; font-weight: bold;}
+
+        /* Lời chúc mừng */
+        .celebration-msg {
+            font-family: 'Dancing Script', cursive; color: #ff4757;
+            font-size: 2.2em; margin-top: 15px;
+            animation: popIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+        }
+
+        /* Pháo giấy */
+        .confetti { position: fixed; top: -10px; z-index: 999; pointer-events: none; }
+
+        /* Animations */
+        @keyframes heartbeat { 0% { transform: scale(1); } 15% { transform: scale(1.1); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes fall { to { transform: translateY(105vh) rotate(720deg); } }
+    </style>
+</head>
+<body>
+    <audio id="bg-music" loop preload="auto">
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="start-screen">
+        <button class="btn-start" onclick="openGift()">Mở quà 19/3 ❤️</button>
+    </div>
+
+    <div id="main-content">
+        <h1 class="main-title">Pinky Squad</h1>
+        <div class="subtitle">"Cảm ơn em vì 6 tháng tuyệt vời..."</div>
+
+        <div class="gallery-container">
+            <div class="gallery">
+                <img src="1.jpg" alt="Kỷ niệm 1">
+                <img src="2.jpg" alt="Kỷ niệm 2">
+                <img src="3.jpg" alt="Kỷ niệm 3">
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <div class="counter-title">Chúng mình đã đi cùng nhau:</div>
+            <div id="main-timer" class="time-count">Đang tính toán...</div>
+            <div id="sub-timer" class="time-details">...</div>
+        </div>
+
+        <div class="celebration-msg">
+            🎉 Happy 6 Months! 🎉
+            <div style="font-size: 0.5em; font-family: 'Nunito'; color: #576574; margin-top: 5px;">Steak tối nay anh mời! (Ví anh lo được)</div>
+        </div>
+    </div>
+
+    <script>
+        // Mốc bắt đầu yêu: 19/09/2025
+        const startDate = new Date('2025-09-19T00:00:00');
+
+        function openGift() {
+            // 1. Ẩn màn hình chào
+            document.getElementById('start-screen').style.opacity = '0';
+            setTimeout(() => { document.getElementById('start-screen').style.display = 'none'; }, 600);
+            
+            // 2. Hiện nội dung chính
+            const main = document.getElementById('main-content');
+            main.style.display = 'block';
+            setTimeout(() => { main.style.opacity = '1'; }, 100);
+
+            // 3. Bật nhạc
+            const music = document.getElementById('bg-music');
+            music.volume = 0.6;
+            music.play().catch(e => console.log("Lỗi autoplay:", e));
+            
+            // 4. Kích hoạt hiệu ứng ăn mừng NGAY LẬP TỨC
+            celebrateNow();
+
+            // 5. Chạy đồng hồ đếm thời gian
+            setInterval(updateTimer, 1000);
+            updateTimer(); 
+        }
+
+        // Hàm tính thời gian đã yêu (Tháng/Ngày + Giờ/Phút/Giây)
+        function updateTimer() {
+            const now = new Date();
+            let months = (now.getFullYear() - startDate.getFullYear()) * 12 + (now.getMonth() - startDate.getMonth());
+            let days = now.getDate() - startDate.getDate();
+            if (days < 0) {
+                months--;
+                days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+            }
+            
+            const diffMS = now - startDate;
+            const h = Math.floor((diffMS % 86400000) / 3600000);
+            const m = Math.floor((diffMS % 3600000) / 60000);
+            const s = Math.floor((diffMS % 60000) / 1000);
+
+            document.getElementById('main-timer').innerHTML = `${months} Tháng, ${days} Ngày`;
+            document.getElementById('sub-timer').innerHTML = `${h} giờ : ${m} phút : ${s} giây nữa là sang ngày mới`;
+        }
+
+        // Hàm hiệu ứng ăn mừng
+        function celebrateNow() {
+            document.body.style.backgroundColor = "#ffccd5"; // Đổi màu nền hồng đậm hơn chút cho không khí
+            // Bắn pháo giấy (Confetti)
+            const colors = ['#ff4757', '#2ecc71', '#3498db', '#f1c40f', '#e84393'];
+            for (let i = 0; i < 150; i++) { // Số lượng pháo
+                const conf = document.createElement('div');
+                conf.className = 'confetti';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.width = Math.random() * 10 + 5 + 'px';
+                conf.style.height = Math.random() * 5 + 5 + 'px';
+                conf.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 5000); // Xóa sau khi rơi xong cho nhẹ máy
+            }
+        }
+    </script>
+</body>
+</html>
