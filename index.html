@@ -196,4 +196,101 @@ Trùm Quant.`
             isDown = true; cancelAnimationFrame(animationID); 
             startX = e.touches[0].pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; 
         });
-        slider.addEventListener('touchend', () => { isDown =
+        slider.addEventListener('touchend', () => { isDown = false; animationID = requestAnimationFrame(autoScroll); });
+        slider.addEventListener('touchmove', (e) => {
+            if (!isDown) return;
+            const x = e.touches[0].pageX - slider.offsetLeft;
+            const walk = (x - startX) * 2;
+            slider.scrollLeft = scrollLeft - walk;
+        });
+
+        // ==========================================
+        // HÀM CHÍNH: MỞ QUÀ
+        // ==========================================
+        function openGift() {
+            document.getElementById('start-screen').style.opacity = '0';
+            setTimeout(() => { document.getElementById('start-screen').style.display = 'none'; }, 600);
+            const main = document.getElementById('main-content');
+            main.style.display = 'block';
+            setTimeout(() => { main.style.opacity = '1'; }, 100);
+
+            const music = document.getElementById('bg-music');
+            music.volume = 0.6; music.play().catch(e => console.log(e));
+            
+            celebrateNow();
+            
+            // Phục hồi Mưa tim rơi liên tục
+            setInterval(createFallingItem, 400); 
+
+            // Chạy đồng hồ
+            setInterval(updateTimer, 1000); 
+            updateTimer();
+            
+            // Chạy vuốt ảnh
+            requestAnimationFrame(autoScroll);
+        }
+
+        function toggleLetter(show) {
+            const modal = document.getElementById('letter-modal');
+            if(show) {
+                modal.style.display = 'flex';
+                setTimeout(() => modal.style.opacity = '1', 10);
+            } else {
+                modal.style.opacity = '0';
+                setTimeout(() => modal.style.display = 'none', 300);
+            }
+        }
+
+        // ==========================================
+        // TÍNH TOÁN THỜI GIAN (ĐÃ THÊM GIỜ:PHÚT:GIÂY)
+        // ==========================================
+        function updateTimer() {
+            const startDate = new Date(CONFIG.ngayBatDau);
+            const now = new Date();
+            
+            // Tính số Tháng / Ngày
+            let months = (now.getFullYear() - startDate.getFullYear()) * 12 + (now.getMonth() - startDate.getMonth());
+            let days = now.getDate() - startDate.getDate();
+            if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+            
+            // Tính Giờ / Phút / Giây lẻ
+            const diffMS = now - startDate;
+            const h = Math.floor((diffMS % 86400000) / 3600000);
+            const m = Math.floor((diffMS % 3600000) / 60000);
+            const s = Math.floor((diffMS % 60000) / 1000);
+
+            document.getElementById('main-timer').innerHTML = `${months} Tháng, ${days} Ngày`;
+            // Cập nhật thẻ HTML mới thêm
+            document.getElementById('sub-timer').innerHTML = `${h} Giờ : ${m} Phút : ${s} Giây`;
+        }
+
+        function celebrateNow() {
+            document.body.style.backgroundColor = "#ffccd5";
+            const colors = ['#ff4757', '#2ecc71', '#3498db', '#f1c40f', '#e84393'];
+            for (let i = 0; i < 150; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'confetti';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.width = Math.random() * 10 + 5 + 'px'; conf.style.height = Math.random() * 5 + 5 + 'px';
+                conf.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 5000);
+            }
+        }
+
+        // Phục hồi hàm tạo hiệu ứng Mưa tim/hoa rơi
+        function createFallingItem() {
+            const item = document.createElement('div');
+            item.classList.add('falling-item');
+            const icons = ['🌸', '💖', '✨', '💕', '🥰'];
+            item.innerText = icons[Math.floor(Math.random() * icons.length)];
+            item.style.left = Math.random() * 100 + 'vw';
+            item.style.animationDuration = Math.random() * 3 + 4 + 's'; 
+            item.style.fontSize = Math.random() * 20 + 15 + 'px'; 
+            document.body.appendChild(item);
+            setTimeout(() => { item.remove(); }, 7000);
+        }
+    </script>
+</body>
+</html>
