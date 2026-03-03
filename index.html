@@ -44,7 +44,6 @@
         .gallery img {
             height: 250px; width: auto; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.15);
             object-fit: cover; flex-shrink: 0; pointer-events: none; 
-            /* ĐÃ XÓA scroll-snap-align để kéo cho mượt */
         }
 
         /* Khung thời gian */
@@ -54,6 +53,7 @@
         }
         .counter-title { font-size: 1.1em; font-weight: bold; color: #2f3542; margin-bottom: 5px; }
         .time-count { font-size: 1.6em; font-weight: 800; color: #ff4757; }
+        .time-details { font-size: 1em; color: #576574; margin-top: 5px; font-weight: bold;} /* Thêm CSS cho dòng đếm giây */
 
         /* Nút mở thư */
         .btn-letter {
@@ -68,10 +68,10 @@
             display: none; justify-content: center; align-items: center; z-index: 200; opacity: 0; transition: 0.3s;
         }
         .paper {
-            background: #fffdf5; /* Màu giấy cũ */
+            background: #fffdf5; 
             width: 85%; max-width: 400px; max-height: 70vh; padding: 30px 25px; border-radius: 10px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; overflow-y: auto; text-align: left;
-            background-image: repeating-linear-gradient(transparent, transparent 29px, #ccc 29px, #ccc 30px); /* Dòng kẻ */
+            background-image: repeating-linear-gradient(transparent, transparent 29px, #ccc 29px, #ccc 30px); 
             line-height: 30px;
         }
         .close-btn {
@@ -79,10 +79,13 @@
         }
         #letter-content {
             font-family: 'Dancing Script', cursive; font-size: 1.5em; color: #2c3e50; margin-top: 10px;
-            white-space: pre-wrap; /* Giữ nguyên dấu xuống dòng */
+            white-space: pre-wrap; 
         }
 
+        /* Hiệu ứng rơi rơi */
         .confetti { position: fixed; top: -10px; z-index: 999; pointer-events: none; }
+        .falling-item { position: absolute; top: -10vh; animation: fall linear forwards; opacity: 0.7; z-index: 1; pointer-events: none; }
+        
         @keyframes heartbeat { 0%, 30%, 100% { transform: scale(1); } 15%, 45% { transform: scale(1.1); } }
         @keyframes fall { to { transform: translateY(105vh) rotate(720deg); } }
     </style>
@@ -105,6 +108,7 @@
         <div class="glass-panel">
             <div class="counter-title" id="custom-counter-title">Chúng mình đã đi cùng nhau:</div>
             <div id="main-timer" class="time-count">...</div>
+            <div id="sub-timer" class="time-details">...</div> 
             <button class="btn-letter" onclick="toggleLetter(true)">Mở Thư Tay 💌</button>
         </div>
     </div>
@@ -123,21 +127,17 @@
         const CONFIG = {
             ngayBatDau: '2025-09-19T00:00:00',
             
-            // Text hiển thị bên ngoài
             nutBamNgoaiCung: "Mở quà 19/3 ❤️",
             tieuDeChinh: "Pinky Squad",
             phuDe: "Cảm ơn em vì 6 tháng tuyệt vời...",
             loiDanDongHo: "Hành trình của chúng mình:",
             
-            // Danh sách ảnh (Muốn thêm bao nhiêu thì cứ phẩy rồi ghi tên file vào đây)
-            // Nhớ up đủ file ảnh lên cùng thư mục
             danhSachAnh: [
                 "1.jpg", 
                 "2.jpg" 
                 //"3.jpg"
             ],
             
-            // Nội dung bức thư (Dài thoải mái, xuống dòng thoải mái)
             thuTay: `Gửi Đội phó của anh,
 
 Cái web này do chính tay anh gõ code để tặng em đấy, đỉnh chưa? 
@@ -149,17 +149,13 @@ Ký tên,
 Trùm Quant.`
         };
         // ==========================================
-        // KẾT THÚC KHU VỰC CẤU HÌNH
-        // ==========================================
 
-        // Áp dụng cấu hình vào HTML
         document.getElementById('btn-open-text').innerText = CONFIG.nutBamNgoaiCung;
         document.getElementById('custom-title').innerText = CONFIG.tieuDeChinh;
         document.getElementById('custom-subtitle').innerText = `"${CONFIG.phuDe}"`;
         document.getElementById('custom-counter-title').innerText = CONFIG.loiDanDongHo;
         document.getElementById('letter-content').innerText = CONFIG.thuTay;
 
-        // Sinh ảnh tự động
         const gallery = document.getElementById('gallery-track');
         CONFIG.danhSachAnh.forEach(anh => {
             const img = document.createElement('img');
@@ -167,7 +163,7 @@ Trùm Quant.`
             gallery.appendChild(img);
         });
 
-// ==========================================
+        // ==========================================
         // ĐỘNG CƠ VUỐT ẢNH 60FPS
         // ==========================================
         const slider = document.getElementById('slider');
@@ -175,114 +171,29 @@ Trùm Quant.`
         let animationID;
 
         function autoScroll() {
-            slider.scrollLeft += 1; // Tốc độ trôi (số càng to trôi càng nhanh)
-            // Nếu cuộn kịch kim thì reset về 0 (loop)
+            slider.scrollLeft += 1; 
             if(slider.scrollLeft >= (slider.scrollWidth - slider.clientWidth)) {
                 slider.scrollLeft = 0;
             }
-            // Gọi lại chính nó để tạo frame liên tục
             animationID = requestAnimationFrame(autoScroll);
         }
 
-        // Tạm dừng khi chuột click vào
         slider.addEventListener('mousedown', (e) => { 
-            isDown = true; 
-            cancelAnimationFrame(animationID); // Phanh gấp
-            startX = e.pageX - slider.offsetLeft; 
-            scrollLeft = slider.scrollLeft; 
+            isDown = true; cancelAnimationFrame(animationID); 
+            startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; 
         });
-        
-        // Chạy tiếp khi nhả chuột hoặc kéo ra ngoài
-        slider.addEventListener('mouseleave', () => { 
-            if(isDown) { isDown = false; animationID = requestAnimationFrame(autoScroll); }
-        });
-        slider.addEventListener('mouseup', () => { 
-            isDown = false; animationID = requestAnimationFrame(autoScroll); // Đạp ga tiếp
-        });
-        
-        // Kéo bằng chuột
+        slider.addEventListener('mouseleave', () => { if(isDown) { isDown = false; animationID = requestAnimationFrame(autoScroll); }});
+        slider.addEventListener('mouseup', () => { isDown = false; animationID = requestAnimationFrame(autoScroll); });
         slider.addEventListener('mousemove', (e) => {
             if (!isDown) return;
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 2; // Nhân 2 để vuốt nhạy hơn
+            const walk = (x - startX) * 2; 
             slider.scrollLeft = scrollLeft - walk;
         });
         
-        // TƯƠNG TÁC CHO ĐIỆN THOẠI (CẢM ỨNG)
         slider.addEventListener('touchstart', (e) => { 
-            isDown = true; 
-            cancelAnimationFrame(animationID); // Chạm tay vào là phanh
-            startX = e.touches[0].pageX - slider.offsetLeft; 
-            scrollLeft = slider.scrollLeft; 
+            isDown = true; cancelAnimationFrame(animationID); 
+            startX = e.touches[0].pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; 
         });
-        
-        slider.addEventListener('touchend', () => { 
-            isDown = false; 
-            animationID = requestAnimationFrame(autoScroll); // Rút ngón tay ra là chạy
-        });
-        
-        slider.addEventListener('touchmove', (e) => {
-            if (!isDown) return;
-            const x = e.touches[0].pageX - slider.offsetLeft;
-            const walk = (x - startX) * 2;
-            slider.scrollLeft = scrollLeft - walk;
-        });
-
-        // Nhớ thay hàm startAutoScroll() cũ trong openGift() thành hàm này:
-        // requestAnimationFrame(autoScroll);
-
-        // Logic Mở quà
-        function openGift() {
-            document.getElementById('start-screen').style.opacity = '0';
-            setTimeout(() => { document.getElementById('start-screen').style.display = 'none'; }, 600);
-            const main = document.getElementById('main-content');
-            main.style.display = 'block';
-            setTimeout(() => { main.style.opacity = '1'; }, 100);
-
-            const music = document.getElementById('bg-music');
-            music.volume = 0.6; music.play().catch(e => console.log(e));
-            
-            celebrateNow();
-            setInterval(updateTimer, 1000); updateTimer();
-            requestAnimationFrame(autoScroll);
-        }
-
-        // Đóng/Mở thư tay
-        function toggleLetter(show) {
-            const modal = document.getElementById('letter-modal');
-            if(show) {
-                modal.style.display = 'flex';
-                setTimeout(() => modal.style.opacity = '1', 10);
-            } else {
-                modal.style.opacity = '0';
-                setTimeout(() => modal.style.display = 'none', 300);
-            }
-        }
-
-        function updateTimer() {
-            const startDate = new Date(CONFIG.ngayBatDau);
-            const now = new Date();
-            let months = (now.getFullYear() - startDate.getFullYear()) * 12 + (now.getMonth() - startDate.getMonth());
-            let days = now.getDate() - startDate.getDate();
-            if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
-            document.getElementById('main-timer').innerHTML = `${months} Tháng, ${days} Ngày`;
-        }
-
-        function celebrateNow() {
-            document.body.style.backgroundColor = "#ffccd5";
-            const colors = ['#ff4757', '#2ecc71', '#3498db', '#f1c40f', '#e84393'];
-            for (let i = 0; i < 150; i++) {
-                const conf = document.createElement('div');
-                conf.className = 'confetti';
-                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.left = Math.random() * 100 + 'vw';
-                conf.style.width = Math.random() * 10 + 5 + 'px'; conf.style.height = Math.random() * 5 + 5 + 'px';
-                conf.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
-                document.body.appendChild(conf);
-                setTimeout(() => conf.remove(), 5000);
-            }
-        }
-    </script>
-</body>
-</html>
+        slider.addEventListener('touchend', () => { isDown =
