@@ -189,14 +189,15 @@ Trùm Quant.`
         });
 
         // ==========================================
-        // ĐỘNG CƠ VUỐT ẢNH 60FPS (FIX MOBILE)
+        // ĐỘNG CƠ VUỐT ẢNH 60FPS (FIX QUÁN TÍNH MOBILE)
         // ==========================================
         const slider = document.getElementById('slider');
         let isDown = false, startX, scrollLeft;
         let animationID;
+        let resumeTimeout; // Bộ đếm ngược chờ quán tính
 
         function autoScroll() {
-            slider.scrollLeft += 1; // TRẢ LẠI SỐ 1 CHO TAO! Điện thoại đéo hiểu 0.1 đâu.
+            slider.scrollLeft += 1; 
             if(slider.scrollLeft >= (slider.scrollWidth - slider.clientWidth)) {
                 slider.scrollLeft = 0;
             }
@@ -205,14 +206,21 @@ Trùm Quant.`
 
         // --- XỬ LÝ TRÊN MÁY TÍNH (Chuột) ---
         slider.addEventListener('mousedown', (e) => { 
-            isDown = true; cancelAnimationFrame(animationID); 
-            startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; 
+            isDown = true; 
+            cancelAnimationFrame(animationID); 
+            clearTimeout(resumeTimeout); // Hủy đếm ngược nếu bấm lại
+            startX = e.pageX - slider.offsetLeft; 
+            scrollLeft = slider.scrollLeft; 
         });
         slider.addEventListener('mouseleave', () => { 
-            if(isDown) { isDown = false; animationID = requestAnimationFrame(autoScroll); }
+            if(isDown) { 
+                isDown = false; 
+                resumeTimeout = setTimeout(() => { animationID = requestAnimationFrame(autoScroll); }, 1500); 
+            }
         });
         slider.addEventListener('mouseup', () => { 
-            isDown = false; animationID = requestAnimationFrame(autoScroll); 
+            isDown = false; 
+            resumeTimeout = setTimeout(() => { animationID = requestAnimationFrame(autoScroll); }, 1500); 
         });
         slider.addEventListener('mousemove', (e) => {
             if (!isDown) return;
@@ -223,17 +231,17 @@ Trùm Quant.`
         });
         
         // --- XỬ LÝ TRÊN ĐIỆN THOẠI (Vuốt cảm ứng) ---
-        // Chỉ cần chạm tay vào là dừng auto-scroll để vuốt tự nhiên
         slider.addEventListener('touchstart', () => { 
             cancelAnimationFrame(animationID); 
+            clearTimeout(resumeTimeout); // Chạm tay vào là cắt JS ngay
         }, { passive: true });
         
-        // Thả tay ra là ảnh tự trôi tiếp
         slider.addEventListener('touchend', () => { 
-            animationID = requestAnimationFrame(autoScroll); 
+            // Thả tay ra, chờ 1.5s cho điện thoại trôi hết quán tính rồi mới đẩy tiếp
+            resumeTimeout = setTimeout(() => {
+                animationID = requestAnimationFrame(autoScroll);
+            }, 1500);
         });
-        
-        // XÓA HOÀN TOÀN SỰ KIỆN TOUCHMOVE! Để điện thoại tự lo việc vuốt cho mượt.
 
         // ==========================================
         // HÀM CHÍNH: MỞ QUÀ
@@ -325,6 +333,7 @@ Trùm Quant.`
     </script>
 </body>
 </html>
+
 
 
 
